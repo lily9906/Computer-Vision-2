@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AForge.Imaging;
+using AForge.Imaging.Filters;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -33,6 +35,7 @@ namespace Computer_Vision_2
             }
             var height = _image.Height;
             var width = _image.Width;
+            int x, y;
 
             var predictionKey = "fb84868c3ea14db9a9d0ca0ca554d192";
             var predictionUrl = "https://southeastasia.api.cognitive.microsoft.com/customvision/v3.0/Prediction/3c9775dd-a5a3-42c6-b6d9-d565c16baf3f/detect/iterations/Iteration2/image";
@@ -62,6 +65,18 @@ namespace Computer_Vision_2
                         //convert Bitmap to byte[] again
                         //pass to classification api
                         //display the result
+
+                        for (x = 0; x < _image.Height;)        
+                        {
+                            for (y = 0; y < _image.Width;)            
+                            {
+                                Color pixelColor = _image.GetPixel(x, y);
+                                Color newColor = Color.FromArgb(pixelColor.R, 0, 0);
+                                _image.SetPixel(x, y, newColor);
+                            }
+                        }
+
+
                         if (prediction.probability > 0.7 && prediction.tagName == "People")
                         {
                             label1.Text = "Yes, It is people";
@@ -90,7 +105,13 @@ namespace Computer_Vision_2
             }
         }
 
+        Crop filter = new Crop(new Rectangle(75, 75, 320, 240));
+        private Bitmap newImage;
 
+        public Filter()
+        {
+            Bitmap newImage = filter.Apply(_image);
+        }
 
         public class filereader
         {
