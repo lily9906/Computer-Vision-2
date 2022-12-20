@@ -63,7 +63,7 @@ namespace Computer_Vision_2
                         //calculate the actual pixel of object found
                         //crop the image using the pixel calculated (create a Rectangle)
                         //convert Bitmap to byte[] again
-                        //pass to classification api
+                        //pass to classification api 
                         //display the result
 
                         for (x = 0; x < _image.Height;)        
