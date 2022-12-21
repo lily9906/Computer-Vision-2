@@ -85,7 +85,7 @@ namespace Computer_Vision_2
 
                         if (prediction.probability > 0.7 && prediction.tagName == "People")
                         {
-                            label1.Text = "Yes, It is people";
+                            label1.Text = "Yes, he/she is a person";
                             label2.Text = myPredictionModel.created.ToString();
 
                         }
@@ -93,12 +93,14 @@ namespace Computer_Vision_2
                         else if (prediction.probability > 0.5 && prediction.tagName == "Cat")
                         {
                             label1.Text = "It is cat";
+                        
 
                         }
 
                         else if (prediction.probability > 0.5 && prediction.tagName == "Dog")
                         {
                             label1.Text = "it is dog.";
+                           
                         }
 
 
@@ -128,7 +130,9 @@ namespace Computer_Vision_2
                         var predictions = myPredictionModel2.predictions;
                         foreach (var prediction2 in predictions)
                         {
-                            if (prediction2.probability > 0.7 && prediction2.tagName == "Fall")
+                    
+
+                            if (prediction2.probability > 0.7 && prediction2.tagName == "Fall" )
                             {
                                 label3.Text = "Yes,he/she is falling.";
                                 label2.Text = myPredictionModel2.created.ToString();
@@ -145,6 +149,8 @@ namespace Computer_Vision_2
                             {
                                 label3.Text = "This posture is sitting.";
                             }
+
+                           
                         }
                     }
                     catch (Exception ex)
