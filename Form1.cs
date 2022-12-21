@@ -24,7 +24,8 @@ namespace Computer_Vision_2
         {
             InitializeComponent();
         }
-        private Bitmap _image;
+        private Bitmap _image, newimage;
+       
         private async void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog Openfile = new OpenFileDialog();
@@ -35,7 +36,7 @@ namespace Computer_Vision_2
             }
             var height = _image.Height;
             var width = _image.Width;
-            int x, y;
+            
 
             var predictionKey = "fb84868c3ea14db9a9d0ca0ca554d192";
             var predictionUrl = "https://southeastasia.api.cognitive.microsoft.com/customvision/v3.0/Prediction/3c9775dd-a5a3-42c6-b6d9-d565c16baf3f/detect/iterations/Iteration2/image";
@@ -66,26 +67,30 @@ namespace Computer_Vision_2
                         //pass to classification api 
                         //display the result
 
-                        for (x = 0; x < _image.Height;)        
-                        {
-                            for (y = 0; y < _image.Width;)            
-                            {
-                                Color pixelColor = _image.GetPixel(x, y);
-                                Color newColor = Color.FromArgb(pixelColor.R, 0, 0);
-                                _image.SetPixel(x, y, newColor);
-                            }
-                        }
 
+
+                        if (prediction.probability < 0.7)
+                            continue;
+
+
+                        var Left = Convert.ToInt32(prediction.boundingBox.left * width);
+                        var Top = Convert.ToInt32(prediction.boundingBox.top * height);
+                        var predictionWidth = Convert.ToInt32(prediction.boundingBox.width * width);
+                        var predictionHeight = Convert.ToInt32(prediction.boundingBox.height * height);
+
+                        Rectangle rekt = new Rectangle(Left, Top, predictionWidth, predictionHeight);
+                        IFilter imgFilter = new Crop(rekt);
+                        var croppedImage = imgFilter.Apply(_image);
+                        pictureBox2.Image = croppedImage;
 
                         if (prediction.probability > 0.7 && prediction.tagName == "People")
                         {
                             label1.Text = "Yes, It is people";
                             label2.Text = myPredictionModel.created.ToString();
 
-
                         }
 
-                        else if (prediction.probability > 0.7 && prediction.tagName == "Cat")
+                        else if (prediction.probability > 0.5 && prediction.tagName == "Cat")
                         {
                             label1.Text = "It is cat";
 
@@ -93,25 +98,65 @@ namespace Computer_Vision_2
 
                         else if (prediction.probability > 0.5 && prediction.tagName == "Dog")
                         {
-                            label1.Text = "Yes, it is dog.";
+                            label1.Text = "it is dog.";
                         }
+
+
                     }
+
                 }
+
                 catch (Exception ex)
                 {
 
                 }
 
+                HttpClient client2 = new HttpClient();
+                client2.DefaultRequestHeaders.Add("Classification-Key", classificationKey);
+                var file2 = _image;
+                byte[] imgBytes2 = filereader.ImageToByte2(_image);
+
+                using (var content2 = new ByteArrayContent(imgBytes2))
+                {
+                    // request API 
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                    try
+                    {
+                        var res2 = await client.PostAsync(classificationUrl, content2);
+                        var str2 = await res2.Content.ReadAsStringAsync();
+                        var myPredictionModel2 = JsonConvert.DeserializeObject<MyPredictionModel>(str2);
+                        var predictions = myPredictionModel2.predictions;
+                        foreach (var prediction2 in predictions)
+                        {
+                            if (prediction2.probability > 0.7 && prediction2.tagName == "Fall")
+                            {
+                                label3.Text = "Yes,he/she is falling.";
+                                label2.Text = myPredictionModel2.created.ToString();
+
+                            }
+
+                            else if (prediction2.probability > 0.5 && prediction2.tagName == "Stand")
+                            {
+                                label3.Text = "This posture is standing.";
+
+                            }
+
+                            else if (prediction2.probability > 0.5 && prediction2.tagName == "Sit")
+                            {
+                                label3.Text = "This posture is sitting.";
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
             }
-        }
+}
 
-        Crop filter = new Crop(new Rectangle(75, 75, 320, 240));
-        private Bitmap newImage;
-
-        public Filter()
-        {
-            Bitmap newImage = filter.Apply(_image);
-        }
+        
+       
 
         public class filereader
         {
@@ -123,29 +168,6 @@ namespace Computer_Vision_2
                     return stream.ToArray();
                 }
             }
-
-            /*public byte[] imagetobytearray(system.drawing.image imagein)
-            {
-                using (var ms = new memorystream())
-                {
-                    imagein.save(ms, imagein.rawformat);
-                    return ms.toarray();
-                }
-           }*/
-
-            /*public static byte[] readfully(Stream input)
-            {
-                byte[] buffer = new byte[16 * 1024];
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    int read;
-                    while ((read = input.read(buffer, 0, buffer.length)) > 0)
-                    {
-                        ms.write(buffer, 0, read);
-                    }
-                    return ms.toarray();
-                }
-            }*/
         }
     }
 }
