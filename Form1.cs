@@ -93,13 +93,19 @@ namespace Computer_Vision_2
                         else if (prediction.probability > 0.5 && prediction.tagName == "Cat")
                         {
                             label1.Text = "It is cat";
-                        
+                            label2.Text = myPredictionModel.created.ToString();
+                            label3.Text = "This posture is not related in the context";
+                            return;
+
 
                         }
 
                         else if (prediction.probability > 0.5 && prediction.tagName == "Dog")
                         {
                             label1.Text = "it is dog.";
+                            label2.Text = myPredictionModel.created.ToString();
+                            label3.Text = "This posture is not related in the context";
+                            return;
                            
                         }
 
@@ -161,8 +167,10 @@ namespace Computer_Vision_2
             }
 }
 
-        
-       
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
 
         public class filereader
         {
